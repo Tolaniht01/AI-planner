@@ -13,9 +13,340 @@ struct state
 
 
 
+struct action
+{
+	int type;
+	int num1;
+	int num2;
+};
+
+queue <state> q;
+queue <action> act;
+map <action,action> mp;
+
+void output_data_2(state st,int num)
+{
+	cout<<"-------------NEXT STATE ------------"<<num<<"\n";
+	cout<<st.hold<<endl;
+	for(int i=0;i<st.clear.size();i++)
+	{
+		cout<<st.clear[i]<<" ";
+	}
+	cout<<endl;
+
+	for(int i=0;i<st.on_table.size();i++)
+	{
+		cout<<st.on_table[i]<<" ";
+	}
+	cout<<endl;
+
+	for(int i=0;i<st.on_top.size();i++)
+	{
+		cout<<st.on_top[i].first<<" , "<<st.on_top[i].second<<" | ";
+	}
+	cout<<endl;
 
 
-queue <state> st;
+	cout<<"-----------------------------\n";
+}
+
+void output_data_1(action ac,int num)
+{
+	cout<<"------- ACTION ------------ "<<num<<endl;
+	cout<<ac.type<<endl;
+	cout<<ac.num1<<endl;
+	cout<<ac.num2<<endl;
+	cout<<"--------------------------------------"<<endl;
+}
+
+void effect_action_4(state st,int num1,int num2)
+{
+	struct state cpy;
+	cpy.hold=0;
+	for(int i=0;i<st.clear.size();i++)
+	{
+		if(st.clear[i]==num2)
+		{
+			continue;
+		}
+		else
+		{
+			cpy.clear.push_back(st.clear[i]);
+		}
+	}
+
+	cpy.clear.push_back(num1);
+
+	for(int i=0;i<st.on_table.size();i++)
+	{
+		cpy.on_table.push_back(st.on_table[i]);
+	}
+
+	for(int i=0;i<st.on_top.size();i++)
+	{
+		cpy.on_top.push_back(st.on_top[i]);
+	}
+	cpy.on_top.push_back(make_pair(num1,num2));
+	output_data_2(cpy,4);
+	q.push(cpy);
+}
+void effect_action_1(state st,int num)
+{
+	struct state cpy;
+	cpy.hold=num;
+	for(int i=0;i<st.clear.size();i++)
+	{
+		if(st.clear[i]==num)
+		{
+			continue;
+		}
+		else
+		{
+			cpy.clear.push_back(st.clear[i]);
+		}
+	}
+
+	for(int i=0;i<st.on_table.size();i++)
+	{
+		if(st.on_table[i]!=num)
+		cpy.on_table.push_back(st.on_table[i]);
+	}
+
+	for(int i=0;i<st.on_top.size();i++)
+	{
+		if(st.on_top[i].first!=num)
+		cpy.on_top.push_back(st.on_top[i]);
+	}
+	output_data_2(cpy,1);
+	q.push(cpy);
+}
+
+void effect_action_2(state st, int num1, int num2)
+{
+	struct state cpy;
+	cpy.hold=num1;
+	for(int i=0;i<st.clear.size();i++)
+	{
+		if(st.clear[i]==num1)
+		{
+			continue;
+		}
+		else
+		{
+			cpy.clear.push_back(st.clear[i]);
+		}
+	}
+
+	cpy.clear.push_back(num2);
+
+	for(int i=0;i<st.on_table.size();i++)
+	{
+		cpy.on_table.push_back(st.on_table[i]);
+	}
+
+		for(int i=0;i<st.on_top.size();i++)
+	{
+		if(st.on_top[i]!=make_pair(num1,num2))
+		cpy.on_top.push_back(st.on_top[i]);
+	}
+
+	output_data_2(cpy,2);
+	q.push(cpy);
+
+
+}
+
+void effect_action_3(state st,int num)
+{
+	struct state cpy;
+	cpy.hold=0;
+
+	for(int i=0;i<st.on_table.size();i++)
+	{
+		cpy.on_table.push_back(st.on_table[i]);
+	}
+
+	cpy.on_table.push_back(num);
+
+	for(int i=0;i<st.clear.size();i++)
+	{
+		
+			cpy.clear.push_back(st.clear[i]);
+		
+	}
+
+	cpy.clear.push_back(num);
+
+	for(int i=0;i<st.on_top.size();i++)
+	{
+		cpy.on_top.push_back(st.on_top[i]);
+	}
+	output_data_2(cpy,3);
+	q.push(cpy);
+
+}
+
+void get_action(state st)
+{
+	if(st.hold!=0)
+	{
+		cout<<"Himanshu"<<endl;
+		for(int i=0;i<st.clear.size();i++)
+		{
+			struct action temp;
+			temp.type=4;
+			temp.num1=st.hold;
+			temp.num2=st.clear[i];
+			act.push(temp);
+			output_data_1(temp,4);
+			effect_action_4(st,st.hold,st.clear[i]);
+
+		}
+
+
+		struct action temp;
+		temp.type=3;
+		temp.num1=st.hold;
+		temp.num2=0;
+		act.push(temp);
+		output_data_1(temp,3);
+		effect_action_3(st,temp.num1);
+	}
+
+	else
+	{
+		cout<<"Tolani"<<endl;
+		for(int i=0;i<st.clear.size();i++)
+		{
+			struct action temp;
+			temp.type=1;
+			temp.num1 = st.clear[i];
+			temp.num2 = 0;
+			act.push(temp);
+			output_data_1(temp,1);
+			effect_action_1(st,st.clear[i]);
+		}
+
+
+		for(int i=0;i<st.on_top.size();i++)
+		{
+			for(int j=0;j<st.clear.size();j++)
+			{
+				if(st.on_top[i].first==st.clear[j])
+				{
+					struct action temp;
+					temp.type=2;
+					temp.num1=st.on_top[i].first;
+					temp.num2=st.on_top[i].second;
+					act.push(temp);
+					output_data_1(temp,2);
+					effect_action_2(st,temp.num1,temp.num2);
+				}
+			}
+		}
+
+
+	}
+}
+
+int  is_goal_state(state st)
+{
+	for(int i=0;i<goal_state.clear.size();i++)
+	{
+		int flag=0;
+		for(int j=0;j<st.clear.size();j++)
+		{
+			if(goal_state.clear[i]==st.clear[j])
+			{
+				flag=1;
+				break;
+			}
+		}
+
+		if(flag==0)
+		{
+			return 0;
+		}
+	}
+
+	for(int i=0;i<goal_state.on_top.size();i++)
+	{
+		int flag=0;
+		for(int j=0;j<st.on_top.size();j++)
+		{
+			if(goal_state.on_top[i]==st.on_top[j])
+			{
+				flag=1;
+				break;
+			}
+		}
+
+		if(flag==0)
+		{
+			return 0;
+		}
+	}
+
+	for(int i=0;i<goal_state.on_table.size();i++)
+	{
+		int flag=0;
+		for(int j=0;j<st.on_table.size();j++)
+		{
+			if(goal_state.on_table[i]==st.on_table[j])
+			{
+				flag=1;
+				break;
+			}
+		}
+
+		if(flag==0)
+		{
+			return 0;
+		}
+	}
+
+	if(st.hold!=goal_state.hold)
+	{
+		return 0;
+	}
+
+	return 1;
+
+}
+
+
+
+void BFS(state st)
+{
+	get_action(st);
+	cout<<"Size= "<<q.size()<<" "<<act.size()<<endl;
+	while(!act.empty())
+	{
+		cout<<"SIZE= "<<q.size()<<" "<<act.size()<<endl;
+		struct state tmp=q.front();
+		struct action ac=act.front();
+		q.pop();
+		act.pop();
+		get_action(tmp);
+
+		//output_data(tmp,ac);
+		if(is_goal_state(tmp)==1)
+		{
+			return;
+		}
+	}
+		/*cout<<"*******************************"<<endl;
+		while(!act.empty())
+		{
+			struct state temp1=q.front();
+			q.pop();
+			struct action ac=act.front();
+			output_data_2(temp1,ac.type);
+			output_data_1(ac,ac.type);
+			act.pop();
+		}*/
+}
+
 
 
 int main(int argc, char *argv[])
@@ -32,6 +363,8 @@ int main(int argc, char *argv[])
 	string temp;
 	fin>>temp;
 	cout<<temp<<endl;
+	inital_state.hold=0;
+	goal_state.hold=0;
 	//fin>>temp;
 	/*while(getline(fin, temp))
 	{
@@ -121,7 +454,7 @@ int main(int argc, char *argv[])
 	{
 		cout<<goal_state.on_table[i]<<endl;
 	}*/
-
+	BFS(inital_state);
 
 	return 0;
 }
