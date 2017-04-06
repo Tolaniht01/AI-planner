@@ -218,13 +218,19 @@ void get_action(state st)
 		cout<<"Tolani"<<endl;
 		for(int i=0;i<st.clear.size();i++)
 		{
-			struct action temp;
-			temp.type=1;
-			temp.num1 = st.clear[i];
-			temp.num2 = 0;
-			act.push(temp);
-			output_data_1(temp,1);
-			effect_action_1(st,st.clear[i]);
+			for(int j=0;j<st.on_table.size();j++)
+			{
+				if(st.on_table[j]==st.clear[i])
+				{
+					struct action temp;
+					temp.type=1;
+					temp.num1 = st.clear[i];
+					temp.num2 = 0;
+					act.push(temp);
+					output_data_1(temp,1);
+					effect_action_1(st,st.clear[i]);
+				}
+			}
 		}
 
 
@@ -332,19 +338,12 @@ void BFS(state st)
 		//output_data(tmp,ac);
 		if(is_goal_state(tmp)==1)
 		{
+			output_data_1(ac,10000);
+			output_data_2(tmp,10000);
 			return;
 		}
 	}
-		/*cout<<"*******************************"<<endl;
-		while(!act.empty())
-		{
-			struct state temp1=q.front();
-			q.pop();
-			struct action ac=act.front();
-			output_data_2(temp1,ac.type);
-			output_data_1(ac,ac.type);
-			act.pop();
-		}*/
+		
 }
 
 
