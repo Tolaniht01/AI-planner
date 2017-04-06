@@ -8,7 +8,7 @@ struct state
 	vector <int> clear;
 	vector <int> on_table;
 	vector < pair<int,int> > on_top;
-	int hold=0;
+	int hold;
 }inital_state,goal_state;
 
 
@@ -22,7 +22,7 @@ struct action
 
 queue <state> q;
 queue <action> act;
-map <action,action> mp;
+queue <vector <action> > list_ac;
 
 void output_data_2(state st,int num)
 {
@@ -87,7 +87,7 @@ void effect_action_4(state st,int num1,int num2)
 		cpy.on_top.push_back(st.on_top[i]);
 	}
 	cpy.on_top.push_back(make_pair(num1,num2));
-	output_data_2(cpy,4);
+	//output_data_2(cpy,4);
 	q.push(cpy);
 }
 void effect_action_1(state st,int num)
@@ -117,7 +117,7 @@ void effect_action_1(state st,int num)
 		if(st.on_top[i].first!=num)
 		cpy.on_top.push_back(st.on_top[i]);
 	}
-	output_data_2(cpy,1);
+	//output_data_2(cpy,1);
 	q.push(cpy);
 }
 
@@ -150,7 +150,7 @@ void effect_action_2(state st, int num1, int num2)
 		cpy.on_top.push_back(st.on_top[i]);
 	}
 
-	output_data_2(cpy,2);
+	//output_data_2(cpy,2);
 	q.push(cpy);
 
 
@@ -181,16 +181,24 @@ void effect_action_3(state st,int num)
 	{
 		cpy.on_top.push_back(st.on_top[i]);
 	}
-	output_data_2(cpy,3);
+	//output_data_2(cpy,3);
 	q.push(cpy);
 
 }
 
-void get_action(state st)
+void get_action(state st,int index)
 {
+	vector <action> ele;
+	if(index==1)
+	{
+		ele=list_ac.front();
+		list_ac.pop();
+	}
+
+
 	if(st.hold!=0)
 	{
-		cout<<"Himanshu"<<endl;
+		//cout<<"Himanshu"<<endl;
 		for(int i=0;i<st.clear.size();i++)
 		{
 			struct action temp;
@@ -198,8 +206,26 @@ void get_action(state st)
 			temp.num1=st.hold;
 			temp.num2=st.clear[i];
 			act.push(temp);
-			output_data_1(temp,4);
+			//output_data_1(temp,4);
 			effect_action_4(st,st.hold,st.clear[i]);
+
+			if(index==0)
+			{
+				vector <action> v;
+				v.push_back(temp);
+				list_ac.push(v);
+			}
+			else
+			{
+				vector <action> v;
+				v=ele;
+				v.push_back(temp);
+				list_ac.push(v);
+				/*for(int c=0;c<list_ac.front().size();c++)
+				{
+					cout<<list_ac.front()[c].type<<" | "<<v[c].type<<endl;
+				}*/
+			}
 
 		}
 
@@ -209,13 +235,30 @@ void get_action(state st)
 		temp.num1=st.hold;
 		temp.num2=0;
 		act.push(temp);
-		output_data_1(temp,3);
+		//output_data_1(temp,3);
+		if(index==0)
+			{
+				vector <action> v;
+				v.push_back(temp);
+				list_ac.push(v);
+			}
+			else
+			{
+				vector <action> v;
+				v=ele;
+				v.push_back(temp);
+				list_ac.push(v);
+				/*for(int c=0;c<list_ac.front().size();c++)
+				{
+					cout<<list_ac.front()[c].type<<" | "<<v[c].type<<endl;
+				}*/
+			}
 		effect_action_3(st,temp.num1);
 	}
 
 	else
 	{
-		cout<<"Tolani"<<endl;
+		//cout<<"Tolani"<<endl;
 		for(int i=0;i<st.clear.size();i++)
 		{
 			for(int j=0;j<st.on_table.size();j++)
@@ -227,7 +270,24 @@ void get_action(state st)
 					temp.num1 = st.clear[i];
 					temp.num2 = 0;
 					act.push(temp);
-					output_data_1(temp,1);
+					//output_data_1(temp,1);
+					if(index==0)
+			{
+				vector <action> v;
+				v.push_back(temp);
+				list_ac.push(v);
+			}
+			else
+			{
+				vector <action> v;
+				v=ele;
+				v.push_back(temp);
+				list_ac.push(v);
+				/*for(int c=0;c<list_ac.front().size();c++)
+				{
+					cout<<list_ac.front()[c].type<<" | "<<v[c].type<<endl;
+				}*/
+			}
 					effect_action_1(st,st.clear[i]);
 				}
 			}
@@ -238,14 +298,32 @@ void get_action(state st)
 		{
 			for(int j=0;j<st.clear.size();j++)
 			{
+				struct action temp;
 				if(st.on_top[i].first==st.clear[j])
 				{
-					struct action temp;
+					
 					temp.type=2;
 					temp.num1=st.on_top[i].first;
 					temp.num2=st.on_top[i].second;
 					act.push(temp);
-					output_data_1(temp,2);
+					//output_data_1(temp,2);
+					if(index==0)
+			{
+				vector <action> v;
+				v.push_back(temp);
+				list_ac.push(v);
+			}
+			else
+			{
+				vector <action> v;
+				v=ele;
+				v.push_back(temp);
+				list_ac.push(v);
+				/*for(int c=0;c<list_ac.front().size();c++)
+				{
+					cout<<list_ac.front()[c].type<<" | "<<v[c].type<<endl;
+				}*/
+			}
 					effect_action_2(st,temp.num1,temp.num2);
 				}
 			}
@@ -324,24 +402,37 @@ int  is_goal_state(state st)
 
 void BFS(state st)
 {
-	get_action(st);
-	cout<<"Size= "<<q.size()<<" "<<act.size()<<endl;
+	get_action(st,0);
+	//cout<<"Size= "<<q.size()<<" "<<act.size()<<endl;
 	while(!act.empty())
 	{
-		cout<<"SIZE= "<<q.size()<<" "<<act.size()<<endl;
+		//cout<<"SIZE= "<<q.size()<<" "<<act.size()<<endl;
 		struct state tmp=q.front();
 		struct action ac=act.front();
 		q.pop();
 		act.pop();
-		get_action(tmp);
+		
 
 		//output_data(tmp,ac);
 		if(is_goal_state(tmp)==1)
 		{
 			output_data_1(ac,10000);
 			output_data_2(tmp,10000);
+
+			vector <action> ans;
+			//list_ac.pop();
+			ans=list_ac.front();
+
+			cout<<"****-----LIST OF ACTION that is ans ---****"<<endl;
+			cout<<"Size_ans= "<<ans.size();
+
+			for(int i=0;i<ans.size();i++)
+			{
+				output_data_1(ans[i],101010);
+			}
 			return;
 		}
+		get_action(tmp,1);
 	}
 		
 }
@@ -354,14 +445,16 @@ int main(int argc, char *argv[])
 	fstream fin ;
 	fin.open(file);
 	int num;
+	char task;
 	fin>>num;
-	cout<<"number of block "<<num<<endl;
+	//cout<<"number of block "<<num<<endl;
 	char ch;
 	fin>>ch;
-	cout<<ch<<endl;
+	task=ch;
+	//cout<<ch<<endl;
 	string temp;
 	fin>>temp;
-	cout<<temp<<endl;
+	//cout<<temp<<endl;
 	inital_state.hold=0;
 	goal_state.hold=0;
 	//fin>>temp;
@@ -414,7 +507,7 @@ int main(int argc, char *argv[])
 	while(fin>>ch)
 	{
 		fin>>temp;
-		cout<<temp<<endl;
+		//cout<<temp<<endl;
 		if(temp=="empty)")
 		{
 			fin>>ch;
@@ -453,7 +546,11 @@ int main(int argc, char *argv[])
 	{
 		cout<<goal_state.on_table[i]<<endl;
 	}*/
+
+	if(task=='f')
+	{
 	BFS(inital_state);
+	}
 
 	return 0;
 }
