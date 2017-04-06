@@ -24,6 +24,56 @@ queue <state> q;
 queue <action> act;
 queue <vector <action> > list_ac;
 
+priority_queue <pair <state,int> > pq;
+priority_queue < pair <action,int> > pact;
+queue < pair <vector <action>,int > > p_list_ac;
+
+
+int get_heuristics(state st)
+{
+	int total = 1+goal_state.clear.size()+goal_state.on_table.size()+goal_state.on_top.size();
+
+	for(int i=0;i<st.clear.size();i++)
+	{
+		for(int j=0;goal_state.clear.size();j++)
+		{
+			if(st.clear[i]==goal_state.clear[j])
+			{
+				total=total-1;
+			}
+		}
+	}
+
+	for(int i=0;i<st.on_table.size();i++)
+	{
+		for(int j=0;goal_state.on_table.size();j++)
+		{
+			if(st.on_table[i]==goal_state.on_table[j])
+			{
+				total=total-1;
+			}
+		}
+	}
+
+	for(int i=0;i<st.on_top.size();i++)
+	{
+		for(int j=0;goal_state.on_top.size();j++)
+		{
+			if(st.on_top[i]==goal_state.on_top[j])
+			{
+				total=total-1;
+			}
+		}
+	}
+
+	if(st.hold==goal_state.hold)
+	{
+		total--;
+	}
+
+	return total;
+}
+
 void output_data_2(state st,int num)
 {
 	cout<<"-------------NEXT STATE ------------"<<num<<"\n";
@@ -438,6 +488,43 @@ void BFS(state st)
 }
 
 
+void A_star(state st)
+{
+
+	get_action(st,0);
+	while(!pact.empty())
+	{
+		pair <state,int> tmp=pq.front();
+		pair <action,int> ac=pact.front();
+		pq.pop();
+		pact.pop();
+		
+
+		//output_data(tmp,ac);
+		if(is_goal_state(tmp.first)==1)
+		{
+			output_data_1(ac.first,10000);
+			output_data_2(tmp.first,10000);
+
+			pair <vector <action>,int> ans;
+			//list_ac.pop();
+			ans=list_ac.front();
+
+			cout<<"****-----LIST OF ACTION that is ans ---****"<<endl;
+			cout<<"Size_ans= "<<ans.first.size();
+
+			for(int i=0;i<ans.first.size();i++)
+			{
+				output_data_1(ans.first[i],101010);
+			}
+			return;
+		}
+		get_action(tmp,1);
+	}
+	
+}
+
+
 
 int main(int argc, char *argv[])
 {
@@ -550,6 +637,10 @@ int main(int argc, char *argv[])
 	if(task=='f')
 	{
 	BFS(inital_state);
+	}
+	else if (task=='a')
+	{
+		A_star(inital_state);
 	}
 
 	return 0;
