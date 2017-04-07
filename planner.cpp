@@ -20,59 +20,39 @@ struct action
 	int num2;
 };
 
+
+struct compare1  
+ {  
+ bool operator()(pair <state,int> l, pair <state,int> r)  
+  {  
+   return l.second >= r.second;
+   }  
+ };
+
+
+ struct compare2  
+ {  
+ bool operator()(pair <action,int> l, pair <action,int> r)  
+  {  
+   return l.second >= r.second;
+   }  
+ };
+
+
+ struct compare3  
+ {  
+ bool operator()(pair <vector <action>,int > l, pair <vector <action>,int > r)  
+  {  
+   return l.second >= r.second;
+   }  
+ };
 queue <state> q;
 queue <action> act;
 queue <vector <action> > list_ac;
 
-priority_queue <pair <state,int> > pq;
-priority_queue < pair <action,int> > pact;
-priority_queue < pair <vector <action>,int > > p_list_ac;
-
-
-int get_heuristics(state st)
-{
-	int total = 1+goal_state.clear.size()+goal_state.on_table.size()+goal_state.on_top.size();
-
-	for(int i=0;i<st.clear.size();i++)
-	{
-		for(int j=0;goal_state.clear.size();j++)
-		{
-			if(st.clear[i]==goal_state.clear[j])
-			{
-				total=total-1;
-			}
-		}
-	}
-
-	for(int i=0;i<st.on_table.size();i++)
-	{
-		for(int j=0;goal_state.on_table.size();j++)
-		{
-			if(st.on_table[i]==goal_state.on_table[j])
-			{
-				total=total-1;
-			}
-		}
-	}
-
-	for(int i=0;i<st.on_top.size();i++)
-	{
-		for(int j=0;goal_state.on_top.size();j++)
-		{
-			if(st.on_top[i]==goal_state.on_top[j])
-			{
-				total=total-1;
-			}
-		}
-	}
-
-	if(st.hold==goal_state.hold)
-	{
-		total--;
-	}
-
-	return total;
-}
+priority_queue <pair <state,int> ,vector <pair <state,int> >, compare1 > pq;
+priority_queue < pair <action,int> ,vector <pair <action,int> > ,compare2 > pact;
+priority_queue < pair <vector <action>,int >, vector <pair <vector <action>,int > >,compare3 > p_list_ac;
 
 void output_data_2(state st,int num)
 {
@@ -108,6 +88,55 @@ void output_data_1(action ac,int num)
 	cout<<ac.num2<<endl;
 	cout<<"--------------------------------------"<<endl;
 }
+
+
+int get_heuristics(state st)
+{
+	int total = 1+goal_state.clear.size()+goal_state.on_table.size()+goal_state.on_top.size();
+	//cout<<"Total =" <<total<<endl;
+	//output_data_2(st,0);
+	for(int i=0;i<st.clear.size();i++)
+	{
+		for(int j=0;j<goal_state.clear.size();j++)
+		{
+			if(st.clear[i]==goal_state.clear[j])
+			{
+				total=total-1;
+			}
+		}
+	}
+	//cout<<"CleAR"<<endl;
+	for(int i=0;i<st.on_table.size();i++)
+	{
+		for(int j=0;j<goal_state.on_table.size();j++)
+		{
+			if(st.on_table[i]==goal_state.on_table[j])
+			{
+				total=total-1;
+			}
+		}
+	}
+	//cout<<"Ontable"<<endl;
+	for(int i=0;i<st.on_top.size();i++)
+	{
+		for(int j=0;j<goal_state.on_top.size();j++)
+		{
+			if(st.on_top[i]==goal_state.on_top[j])
+			{
+				total=total-1;
+			}
+		}
+	}
+	//cout<<"Top"<<endl;
+	if(st.hold==goal_state.hold)
+	{
+		total--;
+	}
+	//cout<<total<<" H "<<endl;
+		return total;
+}
+
+
 
 void effect_action_4(state st,int num1,int num2)
 {
@@ -530,6 +559,7 @@ int effect_star_action_1(state st,int num)
 {
 	struct state cpy;
 	cpy.hold=num;
+	//cout<//<"Cool"<<endl;
 	for(int i=0;i<st.clear.size();i++)
 	{
 		if(st.clear[i]==num)
@@ -555,7 +585,9 @@ int effect_star_action_1(state st,int num)
 	}
 	//output_data_2(cpy,1);
 	//q.push(cpy);
+	//cout<<"Find"<<endl;
 	int val=get_heuristics(cpy);
+
 	pq.push(make_pair(cpy,val));
 	return val;
 }
@@ -643,7 +675,7 @@ void get_star_action(state st,int index)
 
 	if(st.hold!=0)
 	{
-		//cout<<"Himanshu"<<endl;
+		//cout<<"Himanshu12"<<endl;
 		for(int i=0;i<st.clear.size();i++)
 		{
 			struct action temp;
@@ -719,31 +751,32 @@ void get_star_action(state st,int index)
 					//act.push(temp);
 					//output_data_1(temp,1);
 					int k=effect_star_action_1(st,st.clear[i]);
+					//cout<<"Print"<<endl;
 					if(index==0)
-			{
-				vector <action> v;
-				v.push_back(temp);
-				p_list_ac.push(make_pair(v,k));
-			}
-			else
-			{
-				vector <action> v;
-				v=ele.first;
-				v.push_back(temp);
-				p_list_ac.push(make_pair(v,k));
+					{
+					vector <action> v;
+					v.push_back(temp);
+					p_list_ac.push(make_pair(v,k));
+					}
+					else
+					{
+					vector <action> v;
+					v=ele.first;
+					v.push_back(temp);
+					p_list_ac.push(make_pair(v,k));
 				/*for(int c=0;c<list_ac.front().size();c++)
 				{
 					cout<<list_ac.front()[c].type<<" | "<<v[c].type<<endl;
 				}*/
-			}
-					
+					}
+					//cout<<"hello"<<endl;
 					//int k=effect_star_action_4(st,st.hold,st.clear[i]);
 					pact.push(make_pair(temp,k));
 				}
 			}
 		}
 
-
+		//cout<<"found"<<endl;
 		for(int i=0;i<st.on_top.size();i++)
 		{
 			for(int j=0;j<st.clear.size();j++)
@@ -787,19 +820,38 @@ void get_star_action(state st,int index)
 }
 
 
+/*output_actions(priority_queue <pair<action,int> > ch)
+{
+	while(!ch.empty())
+	{
+		pair <action,int> check =ch.top();
+		output_data_1(check.first,300);
+		
+		cout<<"***** "<<check.second<<" ......."<<endl;
+		ch.pop();
+	}
+}*/
+
+
 void A_star(state st)
 {
-
+	//cout<<"Himanshu"<<endl;
 	get_star_action(st,0);
-	while(!pact.empty())
+	//cout<<"HIII"<<endl;
+
+	
+
+	while(pact.size()<=5 )
 	{
+
+		//output_actions(pact);
 		pair <state,int> tmp=pq.top();
 		pair <action,int> ac=pact.top();
 		pq.pop();
 		pact.pop();
 		
-
-		//output_data(tmp,ac);
+		cout<<"H vaal = "<< tmp.second<<endl;
+		output_data_1(ac.first,300);
 		if(is_goal_state(tmp.first)==1)
 		{
 			output_data_1(ac.first,10000);
@@ -819,6 +871,7 @@ void A_star(state st)
 			return;
 		}
 		get_star_action(tmp.first,1);
+		//cout<<"Tolanit"<<endl;
 	}
 	
 }
