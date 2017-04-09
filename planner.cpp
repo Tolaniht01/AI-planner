@@ -53,7 +53,8 @@ queue <vector <action> > list_ac;
 priority_queue <pair <state,int> ,vector <pair <state,int> >, compare1 > pq;
 priority_queue < pair <action,int> ,vector <pair <action,int> > ,compare2 > pact;
 priority_queue < pair <vector <action>,int >, vector <pair <vector <action>,int > >,compare3 > p_list_ac;
-
+int counter_numb=0;
+int count_index=0;
 void output_data_2(state st,int num)
 {
 	cout<<"-------------NEXT STATE ------------"<<num<<"\n";
@@ -133,7 +134,7 @@ int get_heuristics(state st)
 		total--;
 	}
 	//cout<<total<<" H "<<endl;
-		return total;
+		return 1.50*total;
 }
 
 
@@ -166,7 +167,7 @@ void effect_action_4(state st,int num1,int num2)
 		cpy.on_top.push_back(st.on_top[i]);
 	}
 	cpy.on_top.push_back(make_pair(num1,num2));
-	//output_data_2(cpy,4);
+	output_data_2(cpy,4);
 	q.push(cpy);
 }
 void effect_action_1(state st,int num)
@@ -196,7 +197,7 @@ void effect_action_1(state st,int num)
 		if(st.on_top[i].first!=num)
 		cpy.on_top.push_back(st.on_top[i]);
 	}
-	//output_data_2(cpy,1);
+	output_data_2(cpy,1);
 	q.push(cpy);
 }
 
@@ -229,7 +230,7 @@ void effect_action_2(state st, int num1, int num2)
 		cpy.on_top.push_back(st.on_top[i]);
 	}
 
-	//output_data_2(cpy,2);
+	output_data_2(cpy,2);
 	q.push(cpy);
 
 
@@ -260,7 +261,7 @@ void effect_action_3(state st,int num)
 	{
 		cpy.on_top.push_back(st.on_top[i]);
 	}
-	//output_data_2(cpy,3);
+	output_data_2(cpy,3);
 	q.push(cpy);
 
 }
@@ -285,7 +286,7 @@ void get_action(state st,int index)
 			temp.num1=st.hold;
 			temp.num2=st.clear[i];
 			act.push(temp);
-			//output_data_1(temp,4);
+			output_data_1(temp,4);
 			effect_action_4(st,st.hold,st.clear[i]);
 
 			if(index==0)
@@ -314,7 +315,7 @@ void get_action(state st,int index)
 		temp.num1=st.hold;
 		temp.num2=0;
 		act.push(temp);
-		//output_data_1(temp,3);
+		output_data_1(temp,3);
 		if(index==0)
 			{
 				vector <action> v;
@@ -349,7 +350,7 @@ void get_action(state st,int index)
 					temp.num1 = st.clear[i];
 					temp.num2 = 0;
 					act.push(temp);
-					//output_data_1(temp,1);
+					output_data_1(temp,1);
 					if(index==0)
 			{
 				vector <action> v;
@@ -385,7 +386,7 @@ void get_action(state st,int index)
 					temp.num1=st.on_top[i].first;
 					temp.num2=st.on_top[i].second;
 					act.push(temp);
-					//output_data_1(temp,2);
+					output_data_1(temp,2);
 					if(index==0)
 			{
 				vector <action> v;
@@ -483,8 +484,11 @@ void BFS(state st)
 {
 	get_action(st,0);
 	//cout<<"Size= "<<q.size()<<" "<<act.size()<<endl;
-	while(!act.empty())
+
+	cout<<"############################"<<endl;
+	while(act.size()>0)
 	{
+		counter_numb++;
 		//cout<<"SIZE= "<<q.size()<<" "<<act.size()<<endl;
 		struct state tmp=q.front();
 		struct action ac=act.front();
@@ -502,17 +506,21 @@ void BFS(state st)
 			//list_ac.pop();
 			ans=list_ac.front();
 
-			cout<<"****-----LIST OF ACTION that is ans ---****"<<endl;
+			cout<<"****-----LIST OF ACTION that is BFS ans ---****"<<endl;
 			cout<<"Size_ans= "<<ans.size();
 
 			for(int i=0;i<ans.size();i++)
 			{
 				output_data_1(ans[i],101010);
 			}
+			cout<<"Number of Nodes Expaned = "<<counter_numb<<endl;
 			return;
 		}
 		get_action(tmp,1);
+		cout<<"##################################"<<endl;
 	}
+
+	
 		
 }
 
@@ -521,7 +529,7 @@ void BFS(state st)
 /********** BEGINING OF A STAR SEARCH ***************/
 /****************************************************/
 
-int effect_star_action_4(state st,int num1,int num2)
+int effect_star_action_4(state st,int num1,int num2,int depth)
 {
 	struct state cpy;
 	cpy.hold=0;
@@ -549,13 +557,14 @@ int effect_star_action_4(state st,int num1,int num2)
 		cpy.on_top.push_back(st.on_top[i]);
 	}
 	cpy.on_top.push_back(make_pair(num1,num2));
-	//output_data_2(cpy,4);
+	output_data_2(cpy,4);
 	//q.push(cpy);
-	int val=get_heuristics(cpy);
+	int val=get_heuristics(cpy)+depth;
+	cout<<"HHH VAL == "<<val<<endl;
 	pq.push(make_pair(cpy,val));
 	return val;
 }
-int effect_star_action_1(state st,int num)
+int effect_star_action_1(state st,int num,int depth)
 {
 	struct state cpy;
 	cpy.hold=num;
@@ -583,16 +592,16 @@ int effect_star_action_1(state st,int num)
 		if(st.on_top[i].first!=num)
 		cpy.on_top.push_back(st.on_top[i]);
 	}
-	//output_data_2(cpy,1);
+	output_data_2(cpy,1);
 	//q.push(cpy);
 	//cout<<"Find"<<endl;
-	int val=get_heuristics(cpy);
-
+	int val=get_heuristics(cpy)+depth;
+	cout<<"HHH VAL == "<<val<<endl;
 	pq.push(make_pair(cpy,val));
 	return val;
 }
 
-int effect_star_action_2(state st, int num1, int num2)
+int effect_star_action_2(state st, int num1, int num2,int depth)
 {
 	struct state cpy;
 	cpy.hold=num1;
@@ -621,16 +630,17 @@ int effect_star_action_2(state st, int num1, int num2)
 		cpy.on_top.push_back(st.on_top[i]);
 	}
 
-	//output_data_2(cpy,2);
+	output_data_2(cpy,2);
 	//q.push(cpy);
-	int val=get_heuristics(cpy);
+	int val=get_heuristics(cpy)+depth;
+	cout<<"HHH VAL == "<<val<<endl;
 	pq.push(make_pair(cpy,val));
 	return val;
 
 
 }
 
-int effect_star_action_3(state st,int num)
+int effect_star_action_3(state st,int num,int depth)
 {
 	struct state cpy;
 	cpy.hold=0;
@@ -655,15 +665,16 @@ int effect_star_action_3(state st,int num)
 	{
 		cpy.on_top.push_back(st.on_top[i]);
 	}
-	//output_data_2(cpy,3);
+	output_data_2(cpy,3);
 	//q.push(cpy);
-	int val=get_heuristics(cpy);
+	int val=get_heuristics(cpy)+depth;
+	cout<<"HHH VAL == "<<val<<endl;
 	pq.push(make_pair(cpy,val));
 	return val;
 
 }
 
-void get_star_action(state st,int index)
+void get_star_action(state st,int index,int depth)
 {
 	pair <vector <action>,int> ele;
 	if(index==1)
@@ -683,8 +694,8 @@ void get_star_action(state st,int index)
 			temp.num1=st.hold;
 			temp.num2=st.clear[i];
 			
-			//output_data_1(temp,4);
-			int k=effect_star_action_4(st,st.hold,st.clear[i]);
+			output_data_1(temp,4);
+			int k=effect_star_action_4(st,st.hold,st.clear[i],depth);
 			pact.push(make_pair(temp,k));
 			if(index==0)
 			{
@@ -711,8 +722,8 @@ void get_star_action(state st,int index)
 		temp.type=3;
 		temp.num1=st.hold;
 		temp.num2=0;
-		int k=effect_star_action_3(st,temp.num1);
-		//output_data_1(temp,3);
+		int k=effect_star_action_3(st,temp.num1,depth);
+		output_data_1(temp,3);
 		if(index==0)
 			{
 				vector <action> v;
@@ -749,8 +760,8 @@ void get_star_action(state st,int index)
 					temp.num1 = st.clear[i];
 					temp.num2 = 0;
 					//act.push(temp);
-					//output_data_1(temp,1);
-					int k=effect_star_action_1(st,st.clear[i]);
+					output_data_1(temp,1);
+					int k=effect_star_action_1(st,st.clear[i],depth);
 					//cout<<"Print"<<endl;
 					if(index==0)
 					{
@@ -789,8 +800,8 @@ void get_star_action(state st,int index)
 					temp.num1=st.on_top[i].first;
 					temp.num2=st.on_top[i].second;
 					//act.push(temp);
-					//output_data_1(temp,2);
-					int k=effect_star_action_2(st,temp.num1,temp.num2);
+					output_data_1(temp,2);
+					int k=effect_star_action_2(st,temp.num1,temp.num2,depth);
 					if(index==0)
 			{
 				vector <action> v;
@@ -820,38 +831,30 @@ void get_star_action(state st,int index)
 }
 
 
-/*output_actions(priority_queue <pair<action,int> > ch)
-{
-	while(!ch.empty())
-	{
-		pair <action,int> check =ch.top();
-		output_data_1(check.first,300);
-		
-		cout<<"***** "<<check.second<<" ......."<<endl;
-		ch.pop();
-	}
-}*/
+
 
 
 void A_star(state st)
 {
 	//cout<<"Himanshu"<<endl;
-	get_star_action(st,0);
+	get_star_action(st,0,0);
 	//cout<<"HIII"<<endl;
-
+	cout<<"############################"<<endl;
 	
-
-	while(pact.size()<=5 )
+	int counter =1;
+	while(pact.size()>0 )
 	{
 
 		//output_actions(pact);
+		counter_numb++;
 		pair <state,int> tmp=pq.top();
 		pair <action,int> ac=pact.top();
 		pq.pop();
 		pact.pop();
 		
-		cout<<"H vaal = "<< tmp.second<<endl;
+		//cout<<"H vaal = "<< tmp.second<<endl;
 		output_data_1(ac.first,300);
+		output_data_2(tmp.first,300);
 		if(is_goal_state(tmp.first)==1)
 		{
 			output_data_1(ac.first,10000);
@@ -868,11 +871,17 @@ void A_star(state st)
 			{
 				output_data_1(ans.first[i],101010);
 			}
+			cout<<"Number of Nodes Expaned = "<<counter_numb<<endl;
 			return;
 		}
-		get_star_action(tmp.first,1);
+		get_star_action(tmp.first,1,counter);
+		counter++;
+
+		cout<<"#################################"<<endl;
 		//cout<<"Tolanit"<<endl;
 	}
+
+	
 	
 }
 
