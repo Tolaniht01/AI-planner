@@ -19,7 +19,7 @@ struct action
 	int num1;
 	int num2;
 };
-
+int number_block;
 
 struct compare1  
  {  
@@ -907,6 +907,579 @@ void A_star(state st)
 	
 }
 
+/************************** GOAL STACK PLANING STARTS HERE ***************************/
+
+/***********node type ******************/
+
+/** 1 == conjunct ***/
+/*** 2 == action ****/
+/**** 3 == predicate ****/
+
+
+
+/***************************************/
+
+
+
+struct node 
+{
+	int type ;
+	action a;
+	state s;
+	int id;
+
+};
+
+
+stack <node> stk;
+
+state current_state ;
+
+stack <action> answer;
+
+void add_on_stack(state st)
+{
+	cout<<"Tolaniht "<<endl;
+	for(int i=0;i<st.on_table.size();i++)
+	{
+		node temp;
+		temp.type=3;
+		temp.s.hold=0;
+		temp.s.on_table.push_back(st.on_table[i]);
+		temp.id=1;
+		stk.push(temp);
+	}
+
+	for(int i=0;i<st.on_top.size();i++)
+	{
+		node temp;
+		temp.type=3;
+		temp.s.hold=0;
+		temp.s.on_top.push_back(st.on_top[i]);
+		temp.id=1;
+		stk.push(temp);
+	}
+
+	for(int i=0;i<st.clear.size();i++)
+	{
+		node temp;
+		temp.type=3;
+		temp.s.hold=0;
+		temp.s.clear.push_back(st.clear[i]);
+		temp.id=1;
+		stk.push(temp);
+	}
+
+	if(st.hold >=0 && st.hold<=number_block)
+	{
+	node temp;
+	temp.s.hold=st.hold;
+	temp.type=3;
+	temp.id=1;
+	stk.push(temp);
+	}
+
+}
+
+int  is_subgoal_state(state st,state subgoal)
+{
+	for(int i=0;i<subgoal.clear.size();i++)
+	{
+		int flag=0;
+		for(int j=0;j<st.clear.size();j++)
+		{
+			if(subgoal.clear[i]==st.clear[j])
+			{
+				flag=1;
+				break;
+			}
+		}
+
+		if(flag==0)
+		{
+			return 0;
+		}
+	}
+
+	for(int i=0;i<subgoal.on_top.size();i++)
+	{
+		int flag=0;
+		for(int j=0;j<st.on_top.size();j++)
+		{
+			if(subgoal.on_top[i]==st.on_top[j])
+			{
+				flag=1;
+				break;
+			}
+		}
+
+		if(flag==0)
+		{
+			return 0;
+		}
+	}
+
+	for(int i=0;i<subgoal.on_table.size();i++)
+	{
+		int flag=0;
+		for(int j=0;j<st.on_table.size();j++)
+		{
+			if(subgoal.on_table[i]==st.on_table[j])
+			{
+				flag=1;
+				break;
+			}
+		}
+
+		if(flag==0)
+		{
+			return 0;
+		}
+	}
+
+	if(st.hold!=subgoal.hold && subgoal.hold!=0)
+	{
+		return 0;
+	}
+
+	return 1;
+
+}
+
+
+void goal_effect_action_4(int num1,int num2)
+{
+	struct state cpy;
+	cpy.hold=0;
+	for(int i=0;i<current_state.clear.size();i++)
+	{
+		if(current_state.clear[i]==num2)
+		{
+			continue;
+		}
+		else
+		{
+			cpy.clear.push_back(current_state.clear[i]);
+		}
+	}
+
+	cpy.clear.push_back(num1);
+
+	for(int i=0;i<current_state.on_table.size();i++)
+	{
+		cpy.on_table.push_back(current_state.on_table[i]);
+	}
+
+	for(int i=0;i<current_state.on_top.size();i++)
+	{
+		cpy.on_top.push_back(current_state.on_top[i]);
+	}
+	cpy.on_top.push_back(make_pair(num1,num2));
+
+	current_state=cpy;
+	//output_data_2(cpy,4);
+	//q.push(cpy);
+}
+void goal_effect_action_1(int num)
+{
+	struct state cpy;
+	cpy.hold=num;
+	for(int i=0;i<current_state.clear.size();i++)
+	{
+		if(current_state.clear[i]==num)
+		{
+			continue;
+		}
+		else
+		{
+			cpy.clear.push_back(current_state.clear[i]);
+		}
+	}
+
+	for(int i=0;i<current_state.on_table.size();i++)
+	{
+		if(current_state.on_table[i]!=num)
+		cpy.on_table.push_back(current_state.on_table[i]);
+	}
+
+	for(int i=0;i<current_state.on_top.size();i++)
+	{
+		if(current_state.on_top[i].first!=num)
+		cpy.on_top.push_back(current_state.on_top[i]);
+	}
+	//output_data_2(cpy,1);
+	current_state=cpy;
+}
+
+void goal_effect_action_2(int num1, int num2)
+{
+	struct state cpy;
+	cpy.hold=num1;
+	for(int i=0;i<current_state.clear.size();i++)
+	{
+		if(current_state.clear[i]==num1)
+		{
+			continue;
+		}
+		else
+		{
+			cpy.clear.push_back(current_state.clear[i]);
+		}
+	}
+
+	cpy.clear.push_back(num2);
+
+	for(int i=0;i<current_state.on_table.size();i++)
+	{
+		cpy.on_table.push_back(current_state.on_table[i]);
+	}
+
+		for(int i=0;i<current_state.on_top.size();i++)
+	{
+		if(current_state.on_top[i]!=make_pair(num1,num2))
+		cpy.on_top.push_back(current_state.on_top[i]);
+	}
+
+	//output_data_2(cpy,2);
+	current_state=cpy;
+
+
+}
+
+void goal_effect_action_3(int num)
+{
+	struct state cpy;
+	cpy.hold=0;
+
+	for(int i=0;i<current_state.on_table.size();i++)
+	{
+		cpy.on_table.push_back(current_state.on_table[i]);
+	}
+
+	cpy.on_table.push_back(num);
+
+	for(int i=0;i<current_state.clear.size();i++)
+	{
+		
+			cpy.clear.push_back(current_state.clear[i]);
+		
+	}
+
+	cpy.clear.push_back(num);
+
+	for(int i=0;i<current_state.on_top.size();i++)
+	{
+		cpy.on_top.push_back(current_state.on_top[i]);
+	}
+	//output_data_2(cpy,3);
+	current_state=cpy;
+}
+
+
+void apply_action(action a)
+{
+	answer.push(a);
+
+	if(a.type==1)
+	{
+		goal_effect_action_1(a.num1);
+	}
+	else if(a.type==2)
+	{
+		goal_effect_action_2(a.num1,a.num2);
+	}
+	else if(a.type==3)
+	{
+		goal_effect_action_3(a.num1);
+	}
+	else
+	{
+		goal_effect_action_4(a.num1,a.num2);
+	}
+
+	output_data_2(current_state,1000);
+
+}
+
+int check_predicate(state st)
+{
+	for(int i=0;i<st.clear.size();i++)
+	{
+		for(int j=0;j<current_state.clear.size();j++)
+		{
+			if(st.clear[i]==current_state.clear[j] && st.hold==current_state.hold)
+			{
+				return 1;
+			}
+		}
+	}
+
+	for(int i=0;i<st.on_table.size();i++)
+	{
+		for(int j=0;j<current_state.on_table.size();j++)
+		{
+			if(st.on_table[i]==current_state.on_table[j] && st.hold==current_state.hold)
+			{
+				return 1;
+			}
+		}
+	}
+
+	for(int i=0;i<st.on_top.size();i++)
+	{
+		for(int j=0;j<current_state.on_top.size();j++)
+		{
+
+			if(st.on_top[i]==current_state.on_top[j] && st.hold==current_state.hold)
+			{
+				//out<<current_state.on_top[j].first<<" H "<<current_state.on_top[j].second<<endl;
+				return 1;
+			}
+		}
+	}
+
+
+
+	if(st.clear.size()==0 && st.on_top.size()==0 && st.on_table.size()==0 && st.hold==current_state.hold)
+	{
+		return 1;
+	}
+
+	
+
+
+	return 0;
+
+}
+
+
+
+
+
+void Goal_stack()
+{
+	while(stk.size()<=20)
+	{
+		node p=stk.top();
+		
+		if(p.id==1)
+		{
+			output_data_2(p.s,20);
+
+		}
+		else if(p.id==0)
+		{
+			output_data_1(p.a,10);
+		}
+		//cout<<"Type = "<<p.type<<endl;
+		if(p.type==1)
+		{
+			int k=is_subgoal_state(current_state,p.s);
+			//output_data_2(current_state,420);
+			//output_data_2(p.s,520);
+
+			if(k==0)
+			{
+				cout<<"himanshu"<<endl;
+				//cout<<p.type<<endl;
+				add_on_stack(p.s);
+
+			}
+			else if (k==1)
+			{
+				stk.pop();
+			}
+		}
+		else if(p.type==2)
+		{
+			apply_action(p.a);
+			stk.pop();
+		}
+		else if(p.type==3)
+		{
+			int k=check_predicate(p.s);
+
+			if(k==1)
+			{
+				cout<<"Done"<<endl;
+				stk.pop();
+			}
+			else if(k==0)
+			{
+				cout<<"Remaining"<<endl;
+				stk.pop();
+				add_on_stack(p.s);
+		
+				if(p.s.on_table.size()==1)
+				{
+					node temp;
+					temp.a.type=3;
+					temp.a.num1=p.s.on_table[0];
+					temp.type=2;
+					stk.push(temp);
+					temp.id=0;
+					int num=p.s.on_table[0];
+
+					node temp1;
+					temp1.type=1;
+					temp1.s.hold=num;
+					temp1.id=1;
+					stk.push(temp1);
+				}
+
+				else if(p.s.hold>0 && p.s.hold<=number_block)
+				{
+					node temp;
+					int num=p.s.hold;
+					int flag=0;
+					for(int i=0;i<current_state.on_table.size();i++)
+					{
+						if(num==current_state.on_table[i])
+						{
+							flag=1;
+							break;
+						}
+					}
+
+					if(flag==1)
+					{
+						temp.a.type=1;
+						temp.a.num1=num;
+						temp.a.num2=0;
+						temp.type=2;
+						temp.id=0;
+						stk.push(temp);
+
+						node temp1;
+						temp1.type=1;
+						temp1.s.hold=0;
+						temp1.id=1;
+						temp1.s.clear.push_back(num);
+						temp1.s.on_table.push_back(num);
+						stk.push(temp1);
+
+					}
+
+					else
+					{
+						temp.a.type=2;
+						temp.a.num1=num;
+						temp.type=2;
+						int n;
+						for(int i=0;i<current_state.on_top.size();i++)
+						{
+							if(current_state.on_top[i].first==num)
+							{
+								n=current_state.on_top[i].second;
+							}
+						}
+						temp.a.num2=n;
+						temp.id=0;
+						stk.push(temp);
+
+						node temp1;
+						temp1.type=1;
+						temp1.s.clear.push_back(num);
+						temp1.s.hold=0;
+						temp1.id=1;
+						temp1.s.on_top.push_back(make_pair(num,n));
+						stk.push(temp1);
+						
+
+					}
+
+
+
+				}
+
+				else if(p.s.clear.size()==1)
+				{
+					node temp;
+					temp.a.type=2;
+					temp.type=2;
+					int num=p.s.clear[0];
+					int n;
+					for(int i=0;i<current_state.on_top.size();i++)
+					{
+						if(current_state.on_top[i].second==num)
+						{
+							n=current_state.on_top[i].first;
+							break;
+						}
+					}
+					temp.a.num1=n;
+					temp.a.num2=num;
+					temp.id=0;
+					stk.push(temp);
+
+
+					node temp1;
+					temp1.type=1;
+					temp1.id=1;
+					temp1.s.clear.push_back(n);
+					temp1.s.on_top.push_back(make_pair(n,num));
+					temp1.s.hold=0;
+					stk.push(temp1);
+
+
+				}
+
+				else if(p.s.on_top.size()==1)
+				{
+					node temp;
+					temp.a.type=4;
+					temp.type=2;
+					pair <int,int> num=p.s.on_top[0];
+					temp.a.num1=num.first;
+					temp.a.num2=num.second;
+					temp.id=0;
+					stk.push(temp);
+
+					node temp1;
+					temp1.type=1;
+					temp1.s.clear.push_back(num.second);
+					temp1.s.hold=num.first;
+					temp1.id=1;
+					stk.push(temp1);
+
+				}
+
+				else if(p.s.hold==0)
+				{
+					node temp;
+					temp.a.type =3;
+					temp.type=2;
+					temp.a.num2=0;
+					temp.a.num1=current_state.hold;
+					temp.id=0;
+					stk.push(temp);
+
+				}
+
+
+			
+			
+		}
+
+		//stk.pop();
+	}
+
+
+	}//end of while
+
+	cout<<"Size  ==  "<<stk.size()<<endl;
+}
+
+
+
+
+
+
+
+
+
+/************* MAIN FUCNTION ***************************************************/
+
 
 
 int main(int argc, char *argv[])
@@ -914,9 +1487,9 @@ int main(int argc, char *argv[])
 	char *file=argv[1];
 	fstream fin ;
 	fin.open(file);
-	int num;
+	
 	char task;
-	fin>>num;
+	fin>>number_block;
 	//cout<<"number of block "<<num<<endl;
 	char ch;
 	fin>>ch;
@@ -1024,6 +1597,18 @@ int main(int argc, char *argv[])
 	else if (task=='a')
 	{
 		A_star(inital_state);
+	}
+	else if(task=='g')
+	{
+		node temp;
+		temp.type=1;
+		temp.id=1;
+		temp.s=goal_state;
+		stk.push(temp);
+		current_state=inital_state;
+		
+
+		Goal_stack();
 	}
 
 	return 0;
