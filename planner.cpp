@@ -8,7 +8,7 @@ struct state
 	vector <int> clear;
 	vector <int> on_table;
 	vector < pair<int,int> > on_top;
-	int hold;
+	int hold=0;
 }inital_state,goal_state;
 
 
@@ -489,7 +489,7 @@ int  is_goal_state(state st)
 		}
 	}
 
-	if(st.hold!=goal_state.hold)
+	if(st.hold!=goal_state.hold )
 	{
 		return 0;
 	}
@@ -935,26 +935,26 @@ stack <node> stk;
 
 state current_state ;
 
-stack <action> answer;
+queue <action> answer;
 
 void add_on_stack(state st)
 {
-	cout<<"Tolaniht "<<endl;
+	//cout<<"Tolaniht "<<endl;
 	for(int i=0;i<st.on_table.size();i++)
 	{
 		node temp;
 		temp.type=3;
-		temp.s.hold=0;
+		//temp.s.hold=0;
 		temp.s.on_table.push_back(st.on_table[i]);
 		temp.id=1;
 		stk.push(temp);
 	}
 
-	for(int i=0;i<st.on_top.size();i++)
+	for(int i=st.on_top.size()-1;i>=0;i--)
 	{
 		node temp;
 		temp.type=3;
-		temp.s.hold=0;
+		//temp.s.hold=0;
 		temp.s.on_top.push_back(st.on_top[i]);
 		temp.id=1;
 		stk.push(temp);
@@ -964,7 +964,7 @@ void add_on_stack(state st)
 	{
 		node temp;
 		temp.type=3;
-		temp.s.hold=0;
+		//temp.s.hold=0;
 		temp.s.clear.push_back(st.clear[i]);
 		temp.id=1;
 		stk.push(temp);
@@ -1197,7 +1197,7 @@ void apply_action(action a)
 		goal_effect_action_4(a.num1,a.num2);
 	}
 
-	output_data_2(current_state,1000);
+	//output_data_2(current_state,1000);
 
 }
 
@@ -1207,7 +1207,7 @@ int check_predicate(state st)
 	{
 		for(int j=0;j<current_state.clear.size();j++)
 		{
-			if(st.clear[i]==current_state.clear[j] && st.hold==current_state.hold)
+			if(st.clear[i]==current_state.clear[j])
 			{
 				return 1;
 			}
@@ -1218,7 +1218,7 @@ int check_predicate(state st)
 	{
 		for(int j=0;j<current_state.on_table.size();j++)
 		{
-			if(st.on_table[i]==current_state.on_table[j] && st.hold==current_state.hold)
+			if(st.on_table[i]==current_state.on_table[j] )
 			{
 				return 1;
 			}
@@ -1230,7 +1230,7 @@ int check_predicate(state st)
 		for(int j=0;j<current_state.on_top.size();j++)
 		{
 
-			if(st.on_top[i]==current_state.on_top[j] && st.hold==current_state.hold)
+			if(st.on_top[i]==current_state.on_top[j] )
 			{
 				//out<<current_state.on_top[j].first<<" H "<<current_state.on_top[j].second<<endl;
 				return 1;
@@ -1258,11 +1258,13 @@ int check_predicate(state st)
 
 void Goal_stack()
 {
-	while(stk.size()<=20)
+	while(!stk.empty())
 	{
 		node p=stk.top();
+		//if(is_subgoal_state(goal_state,current_state)==1)
+			//break;
 		
-		if(p.id==1)
+		/*if(p.id==1)
 		{
 			output_data_2(p.s,20);
 
@@ -1270,23 +1272,28 @@ void Goal_stack()
 		else if(p.id==0)
 		{
 			output_data_1(p.a,10);
-		}
+		}*/
 		//cout<<"Type = "<<p.type<<endl;
 		if(p.type==1)
 		{
 			int k=is_subgoal_state(current_state,p.s);
 			//output_data_2(current_state,420);
 			//output_data_2(p.s,520);
+			if(k==1 && p.s.hold==0 && current_state.hold>0 && current_state.hold<=number_block )
+			{
+				k=0;
+			}
 
 			if(k==0)
 			{
-				cout<<"himanshu"<<endl;
+				//cout<<"himanshu"<<endl;
 				//cout<<p.type<<endl;
 				add_on_stack(p.s);
 
 			}
 			else if (k==1)
 			{
+				//cout<<"Subgoal done"<<endl;
 				stk.pop();
 			}
 		}
@@ -1301,12 +1308,13 @@ void Goal_stack()
 
 			if(k==1)
 			{
-				cout<<"Done"<<endl;
+				//cout<<"Done"<<endl;
 				stk.pop();
 			}
 			else if(k==0)
 			{
-				cout<<"Remaining"<<endl;
+				//cout<<"Remaining"<<endl;
+				//output_data_2(current_state,50);
 				stk.pop();
 				add_on_stack(p.s);
 		
@@ -1467,7 +1475,13 @@ void Goal_stack()
 
 	}//end of while
 
-	cout<<"Size  ==  "<<stk.size()<<endl;
+	cout<<"No of Actions  =  "<<answer.size()<<endl;
+	while(!answer.empty())
+	{
+		action a=answer.front();
+		answer.pop();
+		display(a);
+	}
 }
 
 
